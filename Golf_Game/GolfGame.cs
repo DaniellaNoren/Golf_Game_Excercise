@@ -30,17 +30,21 @@ namespace Golf_Game
             do
             {
                 Console.WriteLine($"Cup is {distanceToCup} m away");
-                double[] inputs = GetPlayerInput();
+
+                double[] inputs = GetTwoPlayerInputs();
+
                 Console.WriteLine($"Shooting at cup at a {inputs[0]} degree angle at {inputs[1]}m/s");
-                double distanceShot = Distance(inputs[1], inputs[0]);
+                double distanceShot = Distance(inputs[1], AngleInRadians(inputs[0]));
                 Console.WriteLine($"You shot {distanceShot}m");
+
+                allDistances[nrOfSwings] = distanceShot;
                 nrOfSwings++;
 
                 distanceToCup = CalculateNewDistance(distanceShot, distanceToCup);
 
-                allDistances[nrOfSwings] = distanceShot;
+                
 
-            } while (nrOfSwings < 20 && distanceToCup != 0);
+            } while (nrOfSwings < 20 && (distanceToCup > 0 && distanceToCup > 1));
 
             PrintResults(nrOfSwings, allDistances);
 
@@ -79,11 +83,12 @@ namespace Golf_Game
                 Console.WriteLine("Failed! Took too many swings!");
             }
 
-            Console.WriteLine($"You shot at the cup {nrOfSwings} nr of times");
+            Console.WriteLine($"You shot at the cup {nrOfSwings} times");
 
             foreach (double distance in distances)
             {
-                Console.WriteLine($"{distance}m");
+                if(distance > 0)
+                    Console.WriteLine($"{distance}m");
             }
 
         }
@@ -93,12 +98,32 @@ namespace Golf_Game
             return random.Next(1000, 2501);
         }
 
-        public static double[] GetPlayerInput()
+        public static double GetPlayerInput()
+        {
+            bool correctInput;
+            double input;
+
+            do
+            {
+                correctInput = Double.TryParse(Console.ReadLine().Trim().Replace('.', ','), out input);
+
+                if (!correctInput)
+                {
+                    Console.WriteLine("Invalid input, try again");
+                }
+
+            } while (!correctInput);
+
+            return input;
+
+        }
+
+        public static double[] GetTwoPlayerInputs()
         {
             Console.WriteLine("Angle?");
-            Double.TryParse(Console.ReadLine(), out double angle);
+            double angle = GetPlayerInput();
             Console.WriteLine("Velocity? m/s");
-            Double.TryParse(Console.ReadLine(), out double velocity);
+            double velocity = GetPlayerInput();
             return new double[] { angle, velocity };
         }
 
